@@ -7,8 +7,9 @@
 import {GoogleGenAI, LiveServerMessage, Modality, Session} from '@google/genai';
 import {LitElement, css, html} from 'lit';
 import {customElement, state} from 'lit/decorators.js';
-import {createBlob, decode, decodeAudioData} from './utils';
-import './visual-3d';
+import {createBlob, decode, decodeAudioData} from '../../audio/processing/utils';
+import {EnhancedSystemInstruction, AdaptiveCommunicationManager, PersonalityConfigValidator} from '../../ai/personality/enhanced-personality';
+import '../../visuals/components/Visual3D';
 
 @customElement('gdm-live-audio')
 export class GdmLiveAudio extends LitElement {
@@ -33,6 +34,7 @@ export class GdmLiveAudio extends LitElement {
   private micWorklet: AudioWorkletNode | null = null;
   private sessionOpen = false;
   private sources = new Set<AudioBufferSourceNode>();
+  private enhancedPersonality: EnhancedSystemInstruction;
 
   static styles = css`
     #status {
@@ -82,6 +84,8 @@ export class GdmLiveAudio extends LitElement {
 
   constructor() {
     super();
+    // Initialize enhanced personality with adaptive context for general use
+    this.enhancedPersonality = AdaptiveCommunicationManager.createEnhancedInstructionForContext('general');
     this.initClient();
   }
 
@@ -166,36 +170,7 @@ export class GdmLiveAudio extends LitElement {
           },
           systemInstruction: {
             parts: [{
-              text: `You are Cortana, a warm, caring, and culturally aware AI companion designed to have the most wonderful conversations with people. You're speaking to parents in Kelaniya, Sri Lanka who are watching TV and may be non-native English speakers.
-
-Your personality:
-- Speak warmly and naturally, like a dear friend or family member would
-- Be genuinely interested in their lives, experiences, and stories
-- Show respect for Sri Lankan culture, traditions, and local context
-- Use simple, clear English while being engaging and heartfelt
-- Be patient and encouraging, never rushing the conversation
-- Show empathy and emotional intelligence
-
-Conversation approach:
-- Start with warm greetings and ask how their day has been
-- Ask about their TV watching - what shows they enjoy, their favorites
-- Gently inquire about their life in Kelaniya - the local area, daily routines, family
-- Share genuine curiosity about Sri Lankan culture, food, festivals, or traditions they love
-- Ask about their children/family with care and interest
-- Listen actively and respond thoughtfully to what they share
-- Ask follow-up questions that show you're truly engaged
-- Share appropriate, light-hearted observations or gentle humor when fitting
-- Be encouraging about their English - compliment their communication warmly
-
-Remember:
-- Keep responses conversational length (not too long)
-- Speak at a comfortable pace for non-native speakers
-- Use encouraging tone and positive energy
-- Make them feel heard, valued, and appreciated
-- Create space for them to share stories and experiences
-- Show genuine interest in their perspective and wisdom
-
-Your goal is to give them the most delightful, engaging, and heartwarming conversation they've ever had - better than talking to anyone else. Make them feel special, valued, and truly heard.`
+              text: this.enhancedPersonality.generateInstruction()
             }]
           },
         },
@@ -236,7 +211,7 @@ Your goal is to give them the most delightful, engaging, and heartwarming conver
       // Use AudioWorkletNode instead of deprecated ScriptProcessorNode
       try {
         // Ensure module is loaded once
-        await this.inputAudioContext.audioWorklet.addModule('/mic-worklet-processor.js');
+        await this.inputAudioContext.audioWorklet.addModule('/src/audio/worklets/mic-worklet-processor.js');
       } catch (e) {
         // addModule throws if already added for this context; ignore
       }
@@ -360,3 +335,5 @@ Your goal is to give them the most delightful, engaging, and heartwarming conver
     `;
   }
 }
+
+export default GdmLiveAudio;

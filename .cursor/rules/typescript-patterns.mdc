@@ -1,0 +1,50 @@
+---
+globs: *.ts,*.tsx
+---
+
+# TypeScript Development Patterns
+
+## Lit Component Patterns
+- Use `@customElement` decorator for component registration
+- Use `@state()` for reactive internal state
+- Use `@property()` for external props
+- Implement proper lifecycle methods (connectedCallback, disconnectedCallback)
+
+## Audio Processing Patterns
+```typescript
+// Dual AudioContext pattern for input/output
+private inputAudioContext = new AudioContext({sampleRate: 16000});
+private outputAudioContext = new AudioContext({sampleRate: 24000});
+
+// Proper cleanup in disconnectedCallback
+disconnectedCallback() {
+  this.inputAudioContext?.close();
+  this.outputAudioContext?.close();
+}
+```
+
+## AI Integration Patterns
+- System instruction location: [src/core/app/GdmLiveAudio.tsx](mdc:src/core/app/GdmLiveAudio.tsx)
+- Use async/await for Gemini Live API calls
+- Implement proper error handling with graceful degradation
+- Focus on authentic personality development and emotional intelligence
+
+## Performance Requirements
+- Keep response processing under 300ms additional overhead
+- Use efficient state management with Lit reactive properties
+- Implement concurrent processing where possible
+- Always include error boundaries and fallback mechanisms
+
+## Module Path Aliases (vite.config.ts)
+```ts
+resolve: {
+  alias: {
+    '@': path.resolve(__dirname, 'src'),
+    '@core': path.resolve(__dirname, 'src/core'),
+    '@audio': path.resolve(__dirname, 'src/audio'),
+    '@visuals': path.resolve(__dirname, 'src/visuals'),
+    '@ai': path.resolve(__dirname, 'src/ai'),
+    '@shared': path.resolve(__dirname, 'src/shared'),
+  }
+}
+```

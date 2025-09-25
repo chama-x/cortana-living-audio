@@ -1,0 +1,42 @@
+---
+globs: *.test.ts,*.spec.ts
+---
+
+# Testing and Quality Assurance
+
+## Test Coverage Requirements
+Based on [.plan/specs/enhanced-ai-personality/tasks.md](mdc:.plan/specs/enhanced-ai-personality/tasks.md) and implementation at [src/ai/personality/enhanced-personality.ts](mdc:src/ai/personality/enhanced-personality.ts):
+
+### Unit Tests (Tasks 8.1-8.3)
+- System instruction framework validation
+- Self-reflection processing logic  
+- Emotional intelligence and conversation awareness
+- Quality evaluation against 4 criteria (authenticity, empathy, coherence, usefulness)
+
+### Integration Tests (Tasks 9.1-9.2)  
+- Gemini Live API compatibility with enhancements
+- Real-time audio streaming with personality processing
+- Performance validation (<300ms enhancement overhead)
+- Stress testing for extended conversation sessions
+
+## Quality Metrics
+- **Response Authenticity**: >8.5/10 subjective rating
+- **Emotional Appropriateness**: >85% accuracy  
+- **Conversation Quality**: Natural, engaging, and contextually appropriate
+- **Error Resilience**: >95% graceful degradation success
+
+## Testing Patterns
+```typescript
+describe('EnhancedPersonality', () => {
+  it('should maintain response latency under 300ms');
+  it('should adapt communication style to user context');
+  it('should demonstrate authentic personality traits');
+  it('should handle audio processing failures gracefully');
+});
+```
+
+## Performance Testing
+- Memory usage monitoring during extended sessions
+- Audio latency measurements with enhancement processing
+- 3D visualization frame rate validation
+- Concurrent audio source management testing

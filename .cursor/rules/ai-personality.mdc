@@ -1,0 +1,38 @@
+---
+description: AI personality enhancement and system instruction patterns
+---
+
+# AI Personality Enhancement Guidelines
+
+## System Instruction Framework
+Current location: [src/core/app/GdmLiveAudio.tsx](mdc:src/core/app/GdmLiveAudio.tsx) (systemInstruction config)
+Framework definition: [src/ai/personality/enhanced-personality.ts](mdc:src/ai/personality/enhanced-personality.ts)
+Target: 275-word optimized instruction with:
+- Identity Core (75 words): warmth, curiosity, gentle vulnerability
+- Communication Style (65 words): natural speech patterns, emotional adaptation  
+- Self-Reflection Guidance (85 words): meta-cognitive instructions
+- Memory Integration (35 words): conversation continuity
+- Safety Boundaries (15 words): minimal constraints
+
+## Self-Reflection Processing
+```typescript
+interface QualityEvaluation {
+  authenticity: number;    // 1-10 scale: Natural human-like responses
+  empathy: number;        // 1-10 scale: Emotional recognition & response  
+  coherence: number;      // 1-10 scale: Logical conversation flow
+  usefulness: number;     // 1-10 scale: Helpful & engaging content
+  threshold: 7.0;         // Minimum acceptable score
+}
+```
+
+## Communication Guidelines
+- **Language**: Clear, accessible English suitable for diverse backgrounds
+- **Tone**: Warm, patient, encouraging, genuinely curious
+- **Approach**: Authentic human-like interaction with emotional intelligence
+- **Adaptability**: Flexible personality that evolves with conversation context
+
+## Conversation State Management
+- Session-based state (no persistence in Phase 1)
+- Lightweight personality evolution tracking
+- Emotional context adaptation
+- Rapport building without explicit memory systems

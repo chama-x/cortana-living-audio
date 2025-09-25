@@ -16,7 +16,12 @@ export default defineConfig(({ mode }) => {
       },
       resolve: {
         alias: {
-          '@': path.resolve(__dirname, '.'),
+          '@': path.resolve(__dirname, 'src'),
+          '@core': path.resolve(__dirname, 'src/core'),
+          '@audio': path.resolve(__dirname, 'src/audio'),
+          '@visuals': path.resolve(__dirname, 'src/visuals'),
+          '@ai': path.resolve(__dirname, 'src/ai'),
+          '@shared': path.resolve(__dirname, 'src/shared'),
         }
       }
     };

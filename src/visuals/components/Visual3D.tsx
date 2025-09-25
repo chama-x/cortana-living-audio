@@ -9,7 +9,7 @@
 
 import {LitElement, css, html} from 'lit';
 import {customElement, property} from 'lit/decorators.js';
-import {Analyser} from './analyser';
+import {Analyser} from '../../audio/processing/analyser';
 
 import * as THREE from 'three';
 import {EXRLoader} from 'three/addons/loaders/EXRLoader.js';
@@ -18,8 +18,8 @@ import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
 import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
 import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
 import {FXAAShader} from 'three/addons/shaders/FXAAShader.js';
-import {fs as backdropFS, vs as backdropVS} from './backdrop-shader';
-import {vs as sphereVS} from './sphere-shader';
+import {fs as backdropFS, vs as backdropVS} from '../shaders/backdrop-shader';
+import {vs as sphereVS} from '../shaders/sphere-shader';
 
 /**
  * 3D live audio visual.
@@ -251,8 +251,6 @@ export class GdmLiveAudioVisuals3D extends LitElement {
   }
 }
 
-declare global {
-  interface HTMLElementTagNameMap {
-    'gdm-live-audio-visuals-3d': GdmLiveAudioVisuals3D;
-  }
-}
+// Global interface already declared in main app component
+
+export default GdmLiveAudioVisuals3D;

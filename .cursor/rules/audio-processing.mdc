@@ -1,0 +1,41 @@
+---
+globs: *.ts,*.tsx,mic-worklet-processor.js
+---
+
+# Audio Processing Guidelines
+
+## Critical Performance Requirements
+- **Total Response Latency**: <1000ms 
+- **Enhancement Overhead**: <300ms
+- **Memory Usage**: <50MB additional
+- **Audio Quality**: No degradation from baseline
+
+## AudioContext Management
+```typescript
+// Dual context pattern for optimal processing
+private inputAudioContext = new AudioContext({sampleRate: 16000});  // Speech optimized
+private outputAudioContext = new AudioContext({sampleRate: 24000}); // AI response optimized
+```
+
+## Real-Time Audio Pipeline
+1. Microphone → MediaStream → AudioWorkletNode  
+2. PCM Processing → Float32Array chunks
+3. Base64 encoding → Gemini Live API
+4. AI Response → Audio decoding → Buffer playback
+
+## Audio Analysis for Visuals
+- FFT analysis with 32 sample buffer size
+- Frequency bin extraction for 3D visualization
+- Separate analysis for input and output streams
+- Real-time uniform updates for shader reactivity
+
+## Error Handling Requirements
+- Graceful degradation when audio features fail
+- Proper cleanup of audio contexts and media streams
+- Fallback mechanisms for AudioWorklet failures
+- Memory-conscious buffer management for concurrent sources
+
+## Integration Points
+- Visual analysis: [analyser.ts](mdc:analyser.ts)
+- Audio utilities: [utils.ts](mdc:utils.ts)
+- Microphone processing: [mic-worklet-processor.js](mdc:mic-worklet-processor.js)

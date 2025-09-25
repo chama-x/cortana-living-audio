@@ -1,0 +1,31 @@
+---
+alwaysApply: true
+---
+
+# Cortana Living Audio - Core Project Rules
+
+## Project Architecture
+Main entry points: [main.ts](mdc:main.ts) → [src/index.ts](mdc:src/index.ts)
+Primary component: [src/core/app/GdmLiveAudio.tsx](mdc:src/core/app/GdmLiveAudio.tsx)
+3D Visuals: [src/visuals/components/Visual3D.tsx](mdc:src/visuals/components/Visual3D.tsx)
+Project Context: [.plan/PROJECT_CONTEXT.md](mdc:.plan/PROJECT_CONTEXT.md) - Complete project overview
+
+## Critical Constraints
+- **Real-Time Performance**: Audio latency <1000ms total, enhancement overhead <300ms
+- **Universal Accessibility**: Clear, warm communication suitable for diverse users
+- **Audio Priority**: Never compromise existing audio streaming functionality
+- **Simplicity First**: Prefer elegant solutions, avoid external databases in Phase 1
+
+## Current Development Focus
+Enhanced AI Personality with Basic Self-Reflection (Completed):
+- Framework: [src/ai/personality/enhanced-personality.ts](mdc:src/ai/personality/enhanced-personality.ts)
+- Requirements: [.plan/specs/enhanced-ai-personality/requirements.md](mdc:.plan/specs/enhanced-ai-personality/requirements.md)
+- Design: [.plan/specs/enhanced-ai-personality/design.md](mdc:.plan/specs/enhanced-ai-personality/design.md)
+- Tasks: [.plan/specs/enhanced-ai-personality/tasks.md](mdc:.plan/specs/enhanced-ai-personality/tasks.md)
+
+## Technology Stack
+- Lit Web Components + TypeScript
+- Google Gemini 2.5 Flash Native Audio Dialog API
+- Three.js + Custom GLSL Shaders
+- Web Audio API + AudioWorkletNode
+- Vite build system, pnpm package manager

@@ -1,0 +1,43 @@
+---
+globs: *.ts,*-shader.ts
+---
+
+# 3D Visualization Patterns
+
+## Three.js Architecture
+Main component: [src/visuals/components/Visual3D.tsx](mdc:src/visuals/components/Visual3D.tsx)
+- Scene management with sphere and backdrop meshes
+- Audio-reactive geometry deformation
+- HDR environment mapping with EXR textures
+- Post-processing pipeline with bloom effects
+
+## Shader System
+Sphere shader: [src/visuals/shaders/sphere-shader.ts](mdc:src/visuals/shaders/sphere-shader.ts) - Vertex displacement from audio
+Backdrop shader: [src/visuals/shaders/backdrop-shader.ts](mdc:src/visuals/shaders/backdrop-shader.ts) - Gradient background
+
+## Audio-Reactive Animation Patterns
+```typescript
+// Real-time uniform updates from audio analysis
+uniforms.time.value = performance.now() / 1000;
+uniforms.audioData.value = new Float32Array(analyser.frequencyData);
+uniforms.amplitude.value = analyser.getAverageAmplitude();
+```
+
+## Performance Optimization
+- Target 60fps rendering
+- Efficient geometry with icosahedron subdivision  
+- Optimized shader compilation and uniform updates
+- Memory-conscious texture and buffer management
+
+## Rendering Pipeline
+1. Audio Analysis → Frequency data extraction
+2. Shader Uniforms → Real-time parameter updates  
+3. Vertex Displacement → Audio-reactive deformation
+4. Post-Processing → Bloom effects and anti-aliasing
+5. WebGL Output → 60fps animation loop
+
+## Integration Requirements
+- Synchronization with audio input/output streams
+- No interference with real-time audio processing
+- Graceful degradation for low-performance devices
+- Proper cleanup of WebGL resources
