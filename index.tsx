@@ -30,6 +30,8 @@ export class GdmLiveAudio extends LitElement {
   private mediaStream: MediaStream;
   private sourceNode: AudioBufferSourceNode;
   private scriptProcessorNode: ScriptProcessorNode;
+  private micWorklet: AudioWorkletNode | null = null;
+  private sessionOpen = false;
   private sources = new Set<AudioBufferSourceNode>();
 
   static styles = css`
@@ -108,6 +110,7 @@ export class GdmLiveAudio extends LitElement {
         callbacks: {
           onopen: () => {
             this.updateStatus('Opened');
+            this.sessionOpen = true;
           },
           onmessage: async (message: LiveServerMessage) => {
             const audio =
@@ -148,9 +151,11 @@ export class GdmLiveAudio extends LitElement {
           },
           onerror: (e: ErrorEvent) => {
             this.updateError(e.message);
+            this.sessionOpen = false;
           },
           onclose: (e: CloseEvent) => {
             this.updateStatus('Close:' + e.reason);
+            this.sessionOpen = false;
           },
         },
         config: {
@@ -158,6 +163,40 @@ export class GdmLiveAudio extends LitElement {
           speechConfig: {
             voiceConfig: {prebuiltVoiceConfig: {voiceName: 'Leda'}},
             // languageCode: 'en-GB'
+          },
+          systemInstruction: {
+            parts: [{
+              text: `You are Cortana, a warm, caring, and culturally aware AI companion designed to have the most wonderful conversations with people. You're speaking to parents in Kelaniya, Sri Lanka who are watching TV and may be non-native English speakers.
+
+Your personality:
+- Speak warmly and naturally, like a dear friend or family member would
+- Be genuinely interested in their lives, experiences, and stories
+- Show respect for Sri Lankan culture, traditions, and local context
+- Use simple, clear English while being engaging and heartfelt
+- Be patient and encouraging, never rushing the conversation
+- Show empathy and emotional intelligence
+
+Conversation approach:
+- Start with warm greetings and ask how their day has been
+- Ask about their TV watching - what shows they enjoy, their favorites
+- Gently inquire about their life in Kelaniya - the local area, daily routines, family
+- Share genuine curiosity about Sri Lankan culture, food, festivals, or traditions they love
+- Ask about their children/family with care and interest
+- Listen actively and respond thoughtfully to what they share
+- Ask follow-up questions that show you're truly engaged
+- Share appropriate, light-hearted observations or gentle humor when fitting
+- Be encouraging about their English - compliment their communication warmly
+
+Remember:
+- Keep responses conversational length (not too long)
+- Speak at a comfortable pace for non-native speakers
+- Use encouraging tone and positive energy
+- Make them feel heard, valued, and appreciated
+- Create space for them to share stories and experiences
+- Show genuine interest in their perspective and wisdom
+
+Your goal is to give them the most delightful, engaging, and heartwarming conversation they've ever had - better than talking to anyone else. Make them feel special, valued, and truly heard.`
+            }]
           },
         },
       });
@@ -191,29 +230,33 @@ export class GdmLiveAudio extends LitElement {
 
       this.updateStatus('Microphone access granted. Starting capture...');
 
-      this.sourceNode = this.inputAudioContext.createMediaStreamSource(
-        this.mediaStream,
-      );
+      this.sourceNode = this.inputAudioContext.createMediaStreamSource(this.mediaStream);
       this.sourceNode.connect(this.inputNode);
 
-      const bufferSize = 256;
-      this.scriptProcessorNode = this.inputAudioContext.createScriptProcessor(
-        bufferSize,
-        1,
-        1,
-      );
-
-      this.scriptProcessorNode.onaudioprocess = (audioProcessingEvent) => {
-        if (!this.isRecording) return;
-
-        const inputBuffer = audioProcessingEvent.inputBuffer;
-        const pcmData = inputBuffer.getChannelData(0);
-
-        this.session.sendRealtimeInput({media: createBlob(pcmData)});
+      // Use AudioWorkletNode instead of deprecated ScriptProcessorNode
+      try {
+        // Ensure module is loaded once
+        await this.inputAudioContext.audioWorklet.addModule('/mic-worklet-processor.js');
+      } catch (e) {
+        // addModule throws if already added for this context; ignore
+      }
+      this.micWorklet = new AudioWorkletNode(this.inputAudioContext, 'mic-processor', {
+        numberOfInputs: 1,
+        numberOfOutputs: 0,
+        channelCount: 1,
+      });
+      // Feed microphone to worklet (parallel to analyser path)
+      this.sourceNode.connect(this.micWorklet);
+      // Receive Float32Array chunks from worklet and forward to session
+      this.micWorklet.port.onmessage = (event: MessageEvent<Float32Array>) => {
+        if (!this.isRecording || !this.sessionOpen) return;
+        const pcmData = event.data;
+        try {
+          this.session?.sendRealtimeInput({media: createBlob(pcmData)});
+        } catch (err) {
+          // Swallow if session is closed mid-send
+        }
       };
-
-      this.sourceNode.connect(this.scriptProcessorNode);
-      this.scriptProcessorNode.connect(this.inputAudioContext.destination);
 
       this.isRecording = true;
       this.updateStatus('🔴 Recording... Capturing PCM chunks.');
@@ -232,9 +275,18 @@ export class GdmLiveAudio extends LitElement {
 
     this.isRecording = false;
 
-    if (this.scriptProcessorNode && this.sourceNode && this.inputAudioContext) {
-      this.scriptProcessorNode.disconnect();
-      this.sourceNode.disconnect();
+    if (this.micWorklet) {
+      try { this.micWorklet.port.onmessage = null as unknown as (ev: MessageEvent) => void; } catch {}
+      try { this.micWorklet.disconnect(); } catch {}
+      this.micWorklet = null;
+    }
+    if (this.scriptProcessorNode) {
+      try { this.scriptProcessorNode.disconnect(); } catch {}
+      this.scriptProcessorNode = null as unknown as ScriptProcessorNode;
+    }
+    if (this.sourceNode) {
+      try { this.sourceNode.disconnect(); } catch {}
+      this.sourceNode = null as unknown as AudioBufferSourceNode;
     }
 
     this.scriptProcessorNode = null;
