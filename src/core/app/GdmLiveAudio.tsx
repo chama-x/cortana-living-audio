@@ -212,7 +212,8 @@ export class GdmLiveAudio extends LitElement {
       try {
         // Ensure module is loaded once
         // Use import.meta.env.BASE_URL to get the correct base path for production
-        const workletPath = `${import.meta.env.BASE_URL}mic-worklet-processor.js`;
+        const baseUrl = import.meta.env.BASE_URL || '/';
+        const workletPath = `${baseUrl}mic-worklet-processor.js`;
         await this.inputAudioContext.audioWorklet.addModule(workletPath);
       } catch (e) {
         // addModule throws if already added for this context; ignore
